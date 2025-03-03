@@ -2,211 +2,93 @@
 <!DOCTYPE html>
 <html lang="uk">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WebRTC Тест</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f5f5f7;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #1d1d1f;
-        }
-        .user-controls {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-radius: 8px;
-            background-color: #f2f2f7;
-        }
-        .video-container {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-        @media (min-width: 768px) {
-            .video-container {
-                flex-direction: row;
-            }
-        }
-        .video-box {
-            flex: 1;
-            border-radius: 8px;
-            overflow: hidden;
-            background-color: #000;
-            position: relative;
-        }
-        .video-box h3 {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            color: white;
-            margin: 0;
-            background-color: rgba(0, 0, 0, 0.5);
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 14px;
-        }
-        video {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            background-color: #1c1c1e;
-            min-height: 200px;
-        }
-        button {
-            background-color: #0071e3;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 8px;
-            margin: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        button:hover {
-            background-color: #0051a3;
-        }
-        button:disabled {
-            background-color: #999;
-            cursor: not-allowed;
-        }
-        button.end-call {
-            background-color: #ff3b30;
-        }
-        button.end-call:hover {
-            background-color: #d70015;
-        }
-        input {
-            padding: 10px;
-            border-radius: 8px;
-            border: 1px solid #ccc;
-            font-size: 16px;
-            width: 100%;
-            margin-bottom: 10px;
-        }
-        #userList {
-            margin-top: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            padding: 10px;
-        }
-        .user-item {
-            padding: 10px;
-            margin: 5px 0;
-            background-color: #e9e9eb;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .user-item:hover {
-            background-color: #d1d1d6;
-        }
-        .call-controls {
-            display: flex;
-            justify-content: center;
-            margin: 20px 0;
-        }
-        .hidden {
-            display: none !important;
-        }
-        .status {
-            text-align: center;
-            margin: 15px 0;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: #f2f2f7;
-            font-size: 16px;
-        }
-        .debug-info {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: #f0f0f0;
-            font-family: monospace;
-            font-size: 12px;
-            color: #333;
-            max-height: 100px;
-            overflow-y: auto;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WebRTC Chat</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="container">
-        <h1>Test</h1>
-        
-        <div class="user-controls">
-            <div id="registration">
-                <h3>Реєстрація</h3>
-                <input type="text" id="userId" placeholder="Введіть ваше ім'я">
-                <button id="registerButton" onclick="console.log('Кнопка натиснута через onclick')">Зареєструватися</button>
-            </div>
-            
-            <div id="userSelection" class="hidden">
-                <h3>Доступні користувачі</h3>
-                <div id="userList"></div>
-            </div>
-        </div>
+  <div class="container">
+    <header>
+      <h1>WebRTC Відеочат</h1>
+      <div id="status" class="status">Підключення...</div>
+    </header>
 
-        <div id="status" class="status">Будь ласка, зареєструйтесь для початку</div>
-        
-        <div class="video-container">
-            <div class="video-box">
-                <h3>Локальне відео</h3>
-                <video id="localVideo" autoplay muted playsinline></video>
-            </div>
-            <div class="video-box">
-                <h3>Віддалене відео</h3>
-                <video id="remoteVideo" autoplay playsinline></video>
-            </div>
+    <!-- Реєстрація -->
+    <section id="registration" class="card">
+      <h2>Реєстрація</h2>
+      <div class="form-group">
+        <label for="userId">Введіть ваше ім'я:</label>
+        <input type="text" id="userId" placeholder="Ваше ім'я" autocomplete="off">
+      </div>
+      
+      <div id="mediaOptions" class="form-group media-options">
+        <h3>Вибір медіа:</h3>
+        <div class="radio-group">
+          <label>
+            <input type="radio" name="mediaType" id="bothMedia" checked>
+            <span>Аудіо + Відео</span>
+          </label>
+          <label>
+            <input type="radio" name="mediaType" id="audioOnly">
+            <span>Тільки аудіо</span>
+          </label>
+          <label>
+            <input type="radio" name="mediaType" id="videoOnly">
+            <span>Тільки відео</span>
+          </label>
         </div>
-        
-        <div class="call-controls">
-            <button id="callButton" class="hidden">Подзвонити</button>
-            <button id="answerButton" class="hidden">Відповісти</button>
-            <button id="endCallButton" class="end-call hidden">Завершити</button>
-        </div>
-        
-        <div id="debugInfo" class="debug-info"></div>
-    </div>
+      </div>
+      
+      <button id="registerButton" class="btn primary">Зареєструватися</button>
+    </section>
 
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        // Додаткова діагностика для перевірки Socket.io
-        window.addEventListener('load', function() {
-            const debugInfo = document.getElementById('debugInfo');
-            debugInfo.textContent = 'Сторінку завантажено. Перевірка Socket.io...';
-            
-            if (typeof io === 'undefined') {
-                debugInfo.textContent += '\nПомилка: Socket.io не знайдено!';
-            } else {
-                debugInfo.textContent += '\nSocket.io знайдено. Перевірка підключення...';
-                try {
-                    const socket = io();
-                    socket.on('connect', function() {
-                        debugInfo.textContent += '\nSocket.io підключено успішно! ID: ' + socket.id;
-                    });
-                    socket.on('connect_error', function(err) {
-                        debugInfo.textContent += '\nПомилка підключення: ' + err;
-                    });
-                } catch (e) {
-                    debugInfo.textContent += '\nПомилка ініціалізації Socket.io: ' + e.message;
-                }
-            }
-        });
-    </script>
-    <script src="app.js"></script>
+    <!-- Вибір користувача -->
+    <section id="userSelection" class="card hidden">
+      <h2>Доступні користувачі</h2>
+      <div id="userList" class="user-list">
+        <div class="no-users">Очікування оновлення списку користувачів...</div>
+      </div>
+      <div class="call-actions">
+        <button id="callButton" class="btn primary hidden">
+          <i class="fas fa-phone"></i> Подзвонити
+        </button>
+        <button id="answerButton" class="btn success hidden">
+          <i class="fas fa-phone"></i> Відповісти
+        </button>
+        <button id="endCallButton" class="btn danger hidden">
+          <i class="fas fa-phone-slash"></i> Завершити
+        </button>
+      </div>
+    </section>
+
+    <!-- Відеочат -->
+    <section id="videoChat" class="video-container">
+      <div class="video-grid">
+        <div class="video-wrapper local-video-wrapper">
+          <video id="localVideo" autoplay muted playsinline></video>
+          <div class="video-label">Ви</div>
+        </div>
+        <div class="video-wrapper remote-video-wrapper">
+          <video id="remoteVideo" autoplay playsinline></video>
+          <div class="video-label">Співрозмовник</div>
+        </div>
+      </div>
+      
+      <!-- Елементи управління дзвінком -->
+      <div id="callControls" class="call-controls hidden">
+        <button id="audioToggle" class="control-btn">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button id="videoToggle" class="control-btn">
+          <i class="fas fa-video"></i>
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
