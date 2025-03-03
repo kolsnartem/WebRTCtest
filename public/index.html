@@ -20,25 +20,6 @@
         <label for="userId">Введіть ваше ім'я:</label>
         <input type="text" id="userId" placeholder="Ваше ім'я" autocomplete="off">
       </div>
-      
-      <div id="mediaOptions" class="form-group media-options">
-        <h3>Початкові налаштування:</h3>
-        <div class="radio-group">
-          <label>
-            <input type="radio" name="mediaType" id="bothMedia" checked>
-            <span>Аудіо + Відео</span>
-          </label>
-          <label>
-            <input type="radio" name="mediaType" id="audioOnly">
-            <span>Тільки аудіо</span>
-          </label>
-          <label>
-            <input type="radio" name="mediaType" id="videoOnly">
-            <span>Тільки відео</span>
-          </label>
-        </div>
-      </div>
-      
       <button id="registerButton" class="btn primary">Зареєструватися</button>
     </section>
 
@@ -49,11 +30,8 @@
         <button id="callButton" class="btn primary hidden">
           <i class="fas fa-phone"></i> Подзвонити
         </button>
-        <button id="answerVideoButton" class="btn success hidden">
-          <i class="fas fa-video"></i> Відповісти з відео
-        </button>
-        <button id="answerAudioButton" class="btn success hidden">
-          <i class="fas fa-microphone"></i> Відповісти з аудіо
+        <button id="answerButton" class="btn success hidden">
+          <i class="fas fa-phone"></i> Відповісти
         </button>
         <button id="endCallButton" class="btn danger hidden">
           <i class="fas fa-phone-slash"></i> Завершити

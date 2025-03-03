@@ -185,6 +185,10 @@
     object-fit: cover;
   }
   
+  #localVideo {
+    transform: scaleX(-1); /* Дзеркальне відображення */
+  }
+  
   .audio-call {
     flex: 1 1 auto;
     display: flex;
