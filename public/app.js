@@ -66,6 +66,9 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       if (localStream) localStream.getTracks().forEach(track => track.stop());
       localStream = await navigator.mediaDevices.getUserMedia(constraints);
+      // Переконуємося, що аудіотрек увімкнений
+      const audioTrack = localStream.getAudioTracks()[0];
+      if (audioTrack) audioTrack.enabled = true;
       localVideo.srcObject = localStream;
       updateToggleButtons();
       toggleCallInterface(constraints.video);
@@ -110,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
   registerButton.addEventListener('click', async () => {
     if (!userId.value.trim()) return alert('Введіть ім\'я!');
     myUserId = userId.value.trim();
-    if (!await initializeMedia({ audio: true, video: false })) return; // Завжди аудіо за замовчуванням
+    if (!await initializeMedia({ audio: true, video: false })) return;
     socket.emit('register', myUserId);
     registration.classList.add('hidden');
     userSelection.classList.remove('hidden');
@@ -187,7 +190,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function createPeerConnection() {
     peerConnection = new RTCPeerConnection(iceServers);
-    localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+    localStream.getTracks().forEach(track => {
+      track.enabled = true; // Явно вмикаємо трек
+      peerConnection.addTrack(track, localStream);
+    });
     
     peerConnection.ontrack = (event) => {
       remoteVideo.srcObject = event.streams[0];
@@ -226,7 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
   callButton.addEventListener('click', async () => {
     if (!selectedUser) return alert('Оберіть користувача!');
     updateStatus(`Дзвінок до ${selectedUser}`);
-    await initializeMedia({ audio: true, video: false }); // Дзвінок завжди по аудіо
+    await initializeMedia({ audio: true, video: false });
     isVideoCall = false;
     await createPeerConnection();
     const offer = await peerConnection.createOffer();
@@ -239,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
   answerButton.addEventListener('click', async () => {
     if (!incomingCall || !incomingUserId || !pendingOffer) return;
     updateStatus(`Відповідь ${incomingUserId}`);
-    await initializeMedia({ audio: true, video: false }); // Відповідь завжди по аудіо
+    await initializeMedia({ audio: true, video: false });
     isVideoCall = false;
     await createPeerConnection();
     await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer));
