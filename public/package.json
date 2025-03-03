@@ -1,0 +1,16 @@
+{
+  "name": "webrtc-local-test",
+  "version": "1.0.0",
+  "description": "Локальний WebRTC сервер для тестування дзвінків між iOS пристроями",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
