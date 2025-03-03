@@ -41,9 +41,14 @@ document.addEventListener('DOMContentLoaded', () => {
     isVideoCall = videoEnabled;
     videoGrid.classList.toggle('hidden', !videoEnabled);
     audioCall.classList.toggle('hidden', videoEnabled);
+    
+    // Виправлений код - переконуємося, що відео показується коректно
     if (videoEnabled && localStream) {
-      localVideo.srcObject = null;
-      localVideo.srcObject = localStream;
+      // Оновлюємо srcObject тільки якщо у нас є відеотрек
+      if (localStream.getVideoTracks().length > 0) {
+        localVideo.srcObject = null;
+        localVideo.srcObject = localStream;
+      }
     }
   }
 
@@ -94,7 +99,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       
       // Встановлюємо локальний відеопотік
-      if (localVideo) {
+      if (localVideo && constraints.video) {
         localVideo.srcObject = localStream;
       }
       
@@ -115,11 +120,18 @@ document.addEventListener('DOMContentLoaded', () => {
     
     if (enableVideo && !currentVideoTrack) {
       try {
+        // Отримуємо доступ до відео
         const videoStream = await navigator.mediaDevices.getUserMedia({ video: true });
         const newVideoTrack = videoStream.getVideoTracks()[0];
+        
+        // Додаємо відеотрек до існуючого потоку
         localStream.addTrack(newVideoTrack);
         
+        // Показуємо локальне відео
+        localVideo.srcObject = localStream;
+        
         if (peerConnection) {
+          // Знаходимо існуючий відеовідправник або створюємо новий
           const sender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
           if (sender) {
             await sender.replaceTrack(newVideoTrack);
@@ -139,6 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
     } else if (!enableVideo && currentVideoTrack) {
+      // Видаляємо відеотрек
       localStream.removeTrack(currentVideoTrack);
       currentVideoTrack.stop();
       
@@ -155,6 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       toggleCallInterface(false);
     }
 
+    // Завжди оновлюємо відео елемент
     localVideo.srcObject = localStream;
     updateToggleButtons();
   }
